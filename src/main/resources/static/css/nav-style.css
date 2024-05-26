@@ -1,0 +1,11 @@
+.navbar {
+    background-color: hsl(218, 41%, 25%);
+}
+
+.navbar-brand, .nav-link {
+    color: white !important;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: hsl(218, 81%, 75%) !important;
+}

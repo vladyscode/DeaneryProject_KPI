@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="card profile-card">
+            <div class="card-header profile-card-header"><b>My Profile</b></div>
+            <div class="card-body profile-card-body">
+                <img th:src="@{/image/{id}(id=${user.profileImage.id})}" alt="Profile Image"
+                     style="width: 200px; height: 250px; object-fit: cover; box-shadow: 0px 0px 10px blueviolet;"/>
+                <div class="profile-info">
+                    <div>First Name: <span th:text="${user.firstName}"></span></div>
+                    <div>Last Name: <span th:text="${user.lastName}"></span></div>
+                    <div>Father's Name: <span th:text="${user.fatherName}"></span></div>
+                    <div>Email: <span th:text="${user.email}"></span></div>
+                    <div th:if="${user instanceof T(com.example.DeaneryProject.model.Student)}">Group: <span
+                            th:text="${user.group.name}"></span></div>
+                    <div th:if="${user instanceof T(com.example.DeaneryProject.model.Worker)}">Phone Number: <span
+                            th:text="${user.phoneNumber}"></span></div>
+                </div>
+            </div>
+            <div class="card-footer profile-card-footer">
+                <button onclick="toggleForm('profileForm')" class="btn btn-primary">Edit Profile</button>
+                <button onclick="toggleForm('passwordForm')" class="btn btn-primary">Change Password</button>
+                <button onclick="toggleForm('photoForm')" class="btn btn-primary">Upload New Photo</button>
+                <button th:if="${user instanceof T(com.example.DeaneryProject.model.Worker) and user.workerType == T(com.example.DeaneryProject.model.enums.WorkerType).ADMINISTRATOR_WORKER}"
+                        onclick="confirmDelete()" class="btn btn-primary">Delete Profile
+                </button>
+
+                <form id="profileForm" class="form-width" action="/profile/update" method="post" style="display: none;">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="firstName">First Name:</label>
+                            <input type="text" id="firstName" name="firstName" class="form-control form-field"/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="lastName">Last Name:</label>
+                            <input type="text" id="lastName" name="lastName" class="form-control form-field"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fatherName">Father's Name:</label>
+                        <input type="text" id="fatherName" name="fatherName" class="form-control form-field"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+
+                <form id="passwordForm" class="form-width" action="/profile/change-password" method="post"
+                      style="display: none;">
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="currentPassword">Current Password:</label>
+                            <input type="password" id="currentPassword" name="currentPassword"
+                                   class="form-control form-field"/>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="newPassword">New Password:</label>
+                            <input type="password" id="newPassword" name="newPassword" class="form-control form-field"/>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="confirmPassword">Confirm New Password:</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                   class="form-control form-field"/>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+
+                <form id="photoForm" class="form-width" action="/profile/set-profile-image" method="post"
+                      enctype="multipart/form-data" style="display: none;">
+                    <div class="form-group">
+                        <label for="file">New Photo:</label>
+                        <input type="file" id="file" name="file" class="form-control form-field"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Photo</button>
+                </form>
+            </div>
+        </div>
+        <div id="messageBox" th:if="${message}" class="alert mt-3 d-flex justify-content-center align-items-center"
+             style="height: 50px;"
+             th:classappend="${message.contains('Password changed successfully') || message=='Profile image set successfully' || message=='User info updated successfully' ? 'alert-success' : 'alert-danger'}"
+             role="alert">
+            <p class="mb-0" th:text="${message}"></p>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function toggleForm(formId) {
+        var formIds = ['profileForm', 'passwordForm', 'photoForm'];
+
+        for (var i = 0; i < formIds.length; i++) {
+            if (formIds[i] !== formId) {
+                var form = document.getElementById(formIds[i]);
+                if (form) {
+                    form.style.display = "none";
+                }
+                document.querySelector(`button[onclick="toggleForm('${formIds[i]}')"]`).classList.remove('active');
+            }
+        }
+
+        var messageBox = document.getElementById('messageBox');
+        if (messageBox) {
+            messageBox.parentNode.removeChild(messageBox);
+        }
+
+        var clickedForm = document.getElementById(formId);
+        if (clickedForm) {
+            var button = document.querySelector(`button[onclick="toggleForm('${formId}')"]`);
+            if (clickedForm.style.display === "none") {
+                clickedForm.style.display = "block";
+                button.classList.add('active');
+            } else {
+                clickedForm.style.display = "none";
+                button.classList.remove('active');
+            }
+        }
+    }
+
+    function confirmDelete() {
+        var confirmation = confirm("Are you sure you want to delete your profile? This action cannot be undone.");
+        if (confirmation) {
+            window.location.href = '/profile/delete';
+        }
+    }
+</script>
+</body>
+</html>

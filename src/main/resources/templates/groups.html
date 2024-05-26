@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+    <style>
+        .table-wrapper {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .has-leader {
+            color: #93ff93;
+        }
+        .no-leader {
+            color: #ff6363;
+        }
+    </style>
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="search-bar">
+            <form action="/" method="get" class="row justify-content-center align-items-center">
+                <div class="col-auto">
+                    <input type="text" name="name" class="form-control" placeholder="Search">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="col-auto">
+                    <a href="/" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark">
+                    <thead>
+                    <tr>
+                        <th>Group Name</th>
+                        <th>Number of Students</th>
+                        <th>Last Modified Date</th>
+                        <th>Last Modified By</th>
+                        <th>Group Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${groups.isEmpty()}">
+                        <td colspan="5" class="text-center">No registered groups founded</td>
+                    </tr>
+                    <tr th:each="group : ${groups}">
+                        <td>
+                            <a th:href="@{'/group/' + ${group.id}}" th:text="${group.name}"></a>
+                        </td>
+                        <td th:text="${#lists.size(group.students)}"></td>
+                        <td th:text="${#dates.format(group.dateOfModificationAsDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${group.lastModifiedBy != null ? group.lastModifiedBy.firstName + ' ' + group.lastModifiedBy.lastName + ' ' + group.lastModifiedBy.fatherName : 'User not found is system'}"></td>
+                        <td th:classappend="${group.groupLeader != null ? 'has-leader' : 'no-leader'}">
+                            <span th:if="${group.groupLeader != null}">Has Leader</span>
+                            <span th:unless="${group.groupLeader != null}">No Leader</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <form th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker)}"
+              action="/group/create" method="post" class="search-bar row justify-content-center align-items-center">
+            <div class="col-auto">
+                <input type="text" name="name" class="form-control" placeholder="Group Name" required>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Add Group</button>
+            </div>
+        </form>
+
+        <div th:if="${message}" class="alert mt-3 d-flex justify-content-center align-items-center"
+             style="height: 50px;"
+             th:classappend="${message == 'Group created successfully' || message == 'Group deleted successfully' ? 'alert-success' : 'alert-danger'}"
+             role="alert">
+            <p class="mb-0" th:text="${message}"></p>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

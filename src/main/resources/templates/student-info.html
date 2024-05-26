@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student info</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="card profile-card">
+            <div class="card-header profile-card-header"><b>Student Profile</b></div>
+            <div class="card-body profile-card-body">
+                <img th:src="@{/image/{id}(id=${student.profileImage.id})}" alt="Profile Image"
+                     style="width: 200px; height: 250px; object-fit: cover; box-shadow: 0px 0px 10px blueviolet;"/>
+                <div class="profile-info">
+                    <p th:text="${student.firstName} + ' ' + ${student.lastName} + ' ' + ${student.fatherName}"></p>
+                    <p th:text="${student.email}"></p>
+                    <p th:text="${student.group.name}"></p>
+                    <p th:if="${student.isLeader}">is leader</p>
+                </div>
+            </div>
+            <div class="card-footer profile-card-footer">
+                <div class="row">
+                    <div class="col" th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker)}">
+                        <form th:action="@{/group/{groupId}/student/{studentId}/setLeader(groupId=${student.group.id}, studentId=${student.id})}"
+                              method="post">
+                            <button type="submit" class="btn btn-primary">Set as Leader</button>
+                        </form>
+                    </div>
+                    <div class="col" th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker)}">
+                        <form th:action="@{/group/{groupId}/student/{studentId}/delete(groupId=${student.group.id}, studentId=${student.id})}"
+                              method="post">
+                            <button type="submit" class="btn btn-primary">Remove Student</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+    <style>
+        .table-wrapper {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .same-group {
+            background-color: rgba(173, 31, 255, 0.1);
+        }
+
+        .leader-row {
+            background-color: #2a3958;
+        }
+    </style>
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="search-bar">
+            <form action="/students" method="get" class="row justify-content-center align-items-center">
+                <div class="col-auto">
+                    <input type="text" name="keyWord" class="form-control" placeholder="Search">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="col-auto">
+                    <a href="/students" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Father Name</th>
+                        <th>Email</th>
+                        <th>Group</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${students.isEmpty()}">
+                        <td colspan="5" class="text-center">No registered students found</td>
+                    </tr>
+                    <tr th:each="student : ${students}"
+                        th:class="${loggedInUser != null ?
+                (loggedInUser.getUserType() == 'Worker' && student.isLeader ? 'leader-row' :
+                (loggedInUser.getUserType() == 'Student' && student.group.id == loggedInUser.group.id && student.isLeader ? 'leader-row same-group' :
+                (loggedInUser.getUserType() == 'Student' && student.group.id == loggedInUser.group.id && !student.isLeader ? 'same-group' : '')))
+                : ''}">
+
+                        <td><a th:href="@{/group/{groupId}/student/{id}(groupId=${student.group.id}, id=${student.id})}"
+                               th:text="${student.firstName}"></a></td>
+                        <td th:text="${student.lastName}"></td>
+                        <td th:text="${student.fatherName}"></td>
+                        <td th:text="${student.email}"></td>
+                        <td th:text="${student.group.name}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

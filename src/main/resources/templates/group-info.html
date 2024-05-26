@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group info</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+    <style>
+        .table-wrapper {
+            max-height: calc(60vh - 100px);
+            overflow-y: auto;
+        }
+
+        .group-leader-row {
+            background-color: #2a3958;
+        }
+    </style>
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="search-bar">
+            <form th:action="@{'/group/' + ${group.id}}" method="get">
+                <div class="col-auto">
+                    <input type="text" name="keyWord" class="form-control" placeholder="Search">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="col-auto">
+                    <a th:href="@{'/group/' + ${group.id}}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <div style="background-color: hsl(218, 41%, 30%); color: white; padding: 10px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);">
+                <h2 class="text-center" th:text="${group.name}"></h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Father Name</th>
+                        <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${students.isEmpty()}">
+                        <td colspan="5" class="text-center">No registered students in group found</td>
+                    </tr>
+                    <tr th:each="student : ${students}" th:class="${student.isLeader} ? 'group-leader-row' : ''">
+                        <td><a th:href="@{/group/{groupId}/student/{id}(groupId=${student.group.id}, id=${student.id})}"
+                               th:text="${student.firstName}"></a></td>
+                        <td th:text="${student.lastName}"></td>
+                        <td th:text="${student.fatherName}"></td>
+                        <td th:text="${student.email}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-container" style="padding: 10px 0">
+            <form th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker)}"
+                  th:action="@{/group/{groupId}/student/create(groupId=${group.id})}" method="post">
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" name="firstName" class="form-control" placeholder="Student First Name"
+                               required>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="lastName" class="form-control" placeholder="Student Last Name"
+                               required>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="fatherName" class="form-control" placeholder="Student Father Name"
+                               required>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="col">
+                        <input type="email" name="email" class="form-control" placeholder="Student Email" required>
+                    </div>
+                    <div class="col">
+                        <input type="password" name="password" class="form-control" placeholder="Student Password"
+                               required>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="col">
+                        <form th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker)}"
+                              th:action="@{/group/{groupId}/student/create(groupId=${group.id})}" method="post">
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <form th:action="@{/group/{groupId}/delete(groupId=${group.id})}" method="post">
+                            <button type="submit" class="btn btn-primary">Remove Group</button>
+                        </form>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div th:if="${message}" class="alert mt-3 d-flex justify-content-center align-items-center"
+             style="height: 50px;"
+             th:classappend="${message == 'Student created successfully' || message == 'Student deleted successfully' || message=='Student set as leader successfully' ? 'alert-success' : 'alert-danger'}"
+             role="alert">
+            <p class="mb-0" th:text="${message}"></p>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

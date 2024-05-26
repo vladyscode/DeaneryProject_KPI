@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workers</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/nav-style.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+    <style>
+        .table-wrapper {
+            max-height: calc(60vh - 100px);
+            overflow-y: auto;
+        }
+
+        .admin-row {
+            background-color: rgba(173, 31, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+<th:block th:include="blocks/afterlogin_nav :: afterlogin_nav"></th:block>
+<section class="background-radial-gradient overflow-hidden main-content">
+    <div class="container px-1 py-1 px-md-1 text-center text-lg-start my-1">
+        <div class="search-bar">
+            <form action="/workers" method="get" class="row justify-content-center align-items-center">
+                <div class="col-auto">
+                    <input type="text" name="keyWord" class="form-control" placeholder="Search">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div class="col-auto">
+                    <a href="/workers" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-responsive">
+                <table class="table table-bordered table-dark">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Father Name</th>
+                        <th>Email</th>
+                        <th>Contact Number</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${workers.isEmpty()}">
+                        <td colspan="5" class="text-center">No registered workers found</td>
+                    </tr>
+                    <tr th:each="worker : ${workers}"
+                        th:class="${worker.workerType == T(com.example.DeaneryProject.model.enums.WorkerType).ADMINISTRATOR_WORKER} ? 'admin-row' : ''">
+                        <td><a th:href="@{/worker/{workerId}(workerId=${worker.id})}" th:text="${worker.firstName}"></a>
+                        </td>
+                        <td th:text="${worker.lastName}"></td>
+                        <td th:text="${worker.fatherName}"></td>
+                        <td th:text="${worker.email}"></td>
+                        <td th:text="${worker.phoneNumber}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-container" style="padding: 10px 0">
+            <form th:if="${loggedInUser instanceof T(com.example.DeaneryProject.model.Worker) and loggedInUser.workerType == T(com.example.DeaneryProject.model.enums.WorkerType).ADMINISTRATOR_WORKER}"
+                  th:action="@{/worker/create}" method="post">
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" name="firstName" class="form-control" placeholder="Worker First Name"
+                               required>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="lastName" class="form-control" placeholder="Worker Last Name" required>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="fatherName" class="form-control" placeholder="Worker Father Name"
+                               required>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="col">
+                        <input type="email" name="email" class="form-control" placeholder="Worker Email" required>
+                    </div>
+                    <div class="col">
+                        <input type="password" name="password" class="form-control" placeholder="Worker Password"
+                               required>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="phoneNumber" class="form-control" placeholder="Worker Phone Number"
+                               required>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="col">
+                        <select name="workerType" class="form-control" required>
+                            <option value="BASIC_WORKER">Basic worker</option>
+                            <option value="ADMINISTRATOR_WORKER">Administrator worker</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary btn-block">Add Worker</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div th:if="${message}" class="alert mt-3 d-flex justify-content-center align-items-center"
+             style="height: 50px;"
+             th:classappend="${message == 'Worker created successfully' || message == 'Worker deleted successfully' ? 'alert-success' : 'alert-danger'}"
+             role="alert">
+            <p class="mb-0" th:text="${message}"></p>
+        </div>
+    </div>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
